@@ -11,7 +11,7 @@ import (
 func main() {
 	courseTrans := couseSdk.NewHttpClient("http://localhost:8082", "")
 
-	course, err := courseTrans.Get("e5a48a1c-5837-49c1-99e0-c51cb42ce41212")
+	course, err := courseTrans.Get("e5a48a1c-5837-49c1-99e0-c51cb42ce4db")
 	if err != nil {
 		if errors.As(err, &couseSdk.ErrNotFound{}) {
 			fmt.Println("Not found:", err.Error())
