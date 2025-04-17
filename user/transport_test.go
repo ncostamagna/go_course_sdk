@@ -1,53 +1,54 @@
-package course_test
+package user_test
 
 import (
-	"errors"
 	"testing"
-	"net/http"
+	"errors"
 	"fmt"
 	"os"
-	"encoding/json"
+	"net/http"
+
+	userSdk "github.com/ncostamagna/go_course_sdk/user"
 	c "github.com/ncostamagna/go_http_client/client"
-	courseSdk "github.com/ncostamagna/go_course_sdk/course"
 	"github.com/ncostamagna/gocourse_domain/domain"
+	"encoding/json"
 )
 
 var header http.Header
-var sdk courseSdk.Transport
+var sdk userSdk.Transport
 
 func TestMain(m *testing.M) {
 	header = http.Header{}
 	header.Set("Content-Type", "application/json")
-	sdk = courseSdk.NewHttpClient("base-url", "")
+
+	sdk = userSdk.NewHttpClient("base-url", "")
 	os.Exit(m.Run())
 }
 
 func TestGet_Response404Error(t *testing.T) {
-	expectedErr := courseSdk.ErrNotFound{
-		Message: "course '1' doesn't exist",
+	expectedErr := userSdk.ErrNotFound{
+		Message: "user '1' doesn't exist",
 	}
 
 	err := c.AddMockups(&c.Mock{
 		HTTPMethod:   http.MethodGet,
 		RespHeaders:  header,
-		URL:          "base-url/courses/1",
+		URL:          "base-url/users/1",
 		RespHTTPCode: 404,
 		RespBody: fmt.Sprintf(`{
-						"status": 404,
-						"message": "%s"
-					}`, expectedErr.Error()),
+			"status": 404,
+			"message": "%s"
+		}`, expectedErr.Error()),
 	})
 	if err != nil {
 		t.Errorf("expected nil, got %v", err)
 	}
 
-	course, err := sdk.Get("1")
-
+	user, err := sdk.Get("1")
 	if !errors.Is(err, expectedErr) {
 		t.Errorf("expected error %v, got %v", expectedErr, err)
 	}
-	if course != nil {
-		t.Errorf("expected nil, got %v", course)
+	if user != nil {
+		t.Errorf("expected nil, got %v", user)
 	}
 }
 
@@ -57,7 +58,7 @@ func TestGet_ResponseUndefinedError(t *testing.T) {
 	err := c.AddMockups(&c.Mock{
 		HTTPMethod:   http.MethodGet,
 		RespHeaders:  header,
-		URL:          "base-url/courses/1",
+		URL:          "base-url/users/1",
 		RespHTTPCode: 500,
 		RespBody: fmt.Sprintf(`{
 			"status": 500,
@@ -68,12 +69,12 @@ func TestGet_ResponseUndefinedError(t *testing.T) {
 		t.Errorf("expected nil, got %v", err)
 	}
 
-	course, err := sdk.Get("1")
+	user, err := sdk.Get("1")
 	if err == nil || err.Error() != expectedErr.Error() {
 		t.Errorf("expected error %v, got %v", expectedErr, err)
 	}
-	if course != nil {
-		t.Errorf("expected nil, got %v", course)
+	if user != nil {
+		t.Errorf("expected nil, got %v", user)
 	}
 }
 
@@ -83,7 +84,7 @@ func TestGet_ResponseMarshalError(t *testing.T) {
 	err := c.AddMockups(&c.Mock{
 		HTTPMethod:   http.MethodGet,
 		RespHeaders:  header,
-		URL:          "base-url/courses/1",
+		URL:          "base-url/users/1",
 		RespHTTPCode: 200,
 		RespBody: `{`,
 	})
@@ -91,12 +92,12 @@ func TestGet_ResponseMarshalError(t *testing.T) {
 		t.Errorf("expected nil, got %v", err)
 	}
 
-	course, err := sdk.Get("1")
+	user, err := sdk.Get("1")
 	if err == nil || err.Error() != expectedErr.Error() {
 		t.Errorf("expected error %v, got %v", expectedErr, err)
 	}
-	if course != nil {
-		t.Errorf("expected nil, got %v", course)
+	if user != nil {
+		t.Errorf("expected nil, got %v", user)
 	}
 }
 
@@ -106,7 +107,7 @@ func TestGet_ClientError(t *testing.T) {
 	err := c.AddMockups(&c.Mock{
 		HTTPMethod:   http.MethodGet,
 		RespHeaders:  header,
-		URL:          "base-url/courses/1",
+		URL:          "base-url/users/1",
 		RespHTTPCode: 400,
 		Err:          expectedErr,
 	})
@@ -114,54 +115,60 @@ func TestGet_ClientError(t *testing.T) {
 		t.Errorf("expected nil, got %v", err)
 	}
 
-	course, err := sdk.Get("1")
+	user, err := sdk.Get("1")
 	if !errors.Is(err, expectedErr) {
 		t.Errorf("expected error %v, got %v", expectedErr, err)
 	}
-	if course != nil {
-		t.Errorf("expected nil, got %v", course)
+	if user != nil {
+		t.Errorf("expected nil, got %v", user)
 	}
 }
 
 func TestGet_ResponseSuccess(t *testing.T) {
-	expectedCourse := &domain.Course{
+	expectedUser := &domain.User{
 		ID:   "1",
-		Name: "Course 1",
+		FirstName: "Nahuel",
+		LastName: "Costamagna",
+		Email: "nahuel@nahuel.com",
 	}
-	expectedCourseJson, err := json.Marshal(expectedCourse)
+	expectedUserJson, err := json.Marshal(expectedUser)
 	if err != nil {
 		t.Errorf("expected nil, got %v", err)
 	}
-
+	
 	err = c.AddMockups(&c.Mock{
 		HTTPMethod:   http.MethodGet,
 		RespHeaders:  header,
-		URL:          "base-url/courses/1",
+		URL:          "base-url/users/1",
 		RespHTTPCode: 200,
 		RespBody: fmt.Sprintf(`{
 			"status": 200,
 			"message": "success",
 			"data": %s
-		}`, expectedCourseJson),
+		}`, expectedUserJson),
 	})
 	if err != nil {
 		t.Errorf("expected nil, got %v", err)
 	}
 
-	course, err := sdk.Get("1")
+	user, err := sdk.Get("1")
 	if err != nil {
 		t.Errorf("expected nil, got %v", err)
 	}
-	if course == nil {
-		t.Errorf("expected course, got nil")
+	if user == nil {
+		t.Errorf("expected user, got nil")
 	}
 
-	if course.ID != expectedCourse.ID {
-		t.Errorf("expected course ID %v, got %v", expectedCourse.ID, course.ID)
+	if user.ID != expectedUser.ID {
+		t.Errorf("expected user ID %v, got %v", expectedUser.ID, user.ID)
 	}
-	if course.Name != expectedCourse.Name {
-		t.Errorf("expected course name %v, got %v", expectedCourse.Name, course.Name)
+	if user.FirstName != expectedUser.FirstName {
+		t.Errorf("expected user name %v, got %v", expectedUser.FirstName, user.FirstName)
+	}
+	if user.LastName != expectedUser.LastName {
+		t.Errorf("expected user last name %v, got %v", expectedUser.LastName, user.LastName)
+	}
+	if user.Email != expectedUser.Email {
+		t.Errorf("expected user email %v, got %v", expectedUser.Email, user.Email)
 	}
 }
-
-
