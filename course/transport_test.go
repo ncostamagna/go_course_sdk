@@ -20,8 +20,7 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-// use the mock in the client
-func TestGet_ResponseError(t *testing.T) {
+func TestGet_Response404Error(t *testing.T) {
 	expectedErr := courseSdk.ErrNotFound{
 		Message: "course '1' doesn't exist",
 	}
@@ -43,6 +42,55 @@ func TestGet_ResponseError(t *testing.T) {
 	course, err := sdk.Get("1")
 
 	if !errors.Is(err, expectedErr) {
+		t.Errorf("expected error %v, got %v", expectedErr, err)
+	}
+	if course != nil {
+		t.Errorf("expected nil, got %v", course)
+	}
+}
+
+func TestGet_Response500Error(t *testing.T) {
+	expectedErr := errors.New("internal server error")
+	
+	err := c.AddMockups(&c.Mock{
+		HTTPMethod:   http.MethodGet,
+		RespHeaders:  header,
+		URL:          "base-url/courses/1",
+		RespHTTPCode: 500,
+		RespBody: fmt.Sprintf(`{
+			"status": 500,
+			"message": "%s"
+		}`, expectedErr.Error()),
+	})
+	if err != nil {
+		t.Errorf("expected nil, got %v", err)
+	}
+
+	course, err := sdk.Get("1")
+	if err == nil || err.Error() != expectedErr.Error() {
+		t.Errorf("expected error %v, got %v", expectedErr, err)
+	}
+	if course != nil {
+		t.Errorf("expected nil, got %v", course)
+	}
+}
+
+func TestGet_ResponseMarshalError(t *testing.T) {
+	expectedErr := errors.New("unexpected end of JSON input")
+	
+	err := c.AddMockups(&c.Mock{
+		HTTPMethod:   http.MethodGet,
+		RespHeaders:  header,
+		URL:          "base-url/courses/1",
+		RespHTTPCode: 200,
+		RespBody: `{`,
+	})
+	if err != nil {
+		t.Errorf("expected nil, got %v", err)
+	}
+
+	course, err := sdk.Get("1")
+	if err == nil || err.Error() != expectedErr.Error() {
 		t.Errorf("expected error %v, got %v", expectedErr, err)
 	}
 	if course != nil {
