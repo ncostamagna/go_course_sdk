@@ -4,8 +4,8 @@ github.com/jinzhu/inflection v1.0.0 h1:K317FqzuhWc8YvSVlFMCCUb36O/S9MCKRDI7QkRKD
 github.com/jinzhu/inflection v1.0.0/go.mod h1:h+uFLlag+Qp1Va5pdKtLDYj+kHp5pxUVkryuEj+Srlc=
 github.com/jinzhu/now v1.1.4 h1:tHnRBy1i5F2Dh8BAFxqFzxKqqvezXrL2OW1TnX+Mlas=
 github.com/jinzhu/now v1.1.4/go.mod h1:d3SSVoowX0Lcu0IBviAWJpolVfI5UJVZZ7cO71lE/z8=
-github.com/ncostamagna/go_http_client v0.0.2 h1:oIU/B4IAiHKa9bnpcAZmvNk6vAaLZnpMmxb7ApVyzDQ=
-github.com/ncostamagna/go_http_client v0.0.2/go.mod h1:KFcAC5BfXWTBx6vtYo2tZCELCntGNkx8XFMLE0K4Frw=
+github.com/ncostamagna/go_http_client v0.0.3 h1:pqdtjdb8/AtcePU2zJ6EKaqIH70lMgJC8bYLwtQ42D8=
+github.com/ncostamagna/go_http_client v0.0.3/go.mod h1:KFcAC5BfXWTBx6vtYo2tZCELCntGNkx8XFMLE0K4Frw=
 github.com/ncostamagna/gocourse_domain v0.0.1 h1:u+Ve4OFjicttcS9xjsbcps04ghkvBVyVWCl4kE2M4TE=
 github.com/ncostamagna/gocourse_domain v0.0.1/go.mod h1:/OJweFBJiuj44D20InUGiG9+7XKENole1RL8hG/K9jg=
 gorm.io/gorm v1.23.9 h1:NSHG021i+MCznokeXR3udGaNyFyBQJW8MbjrJMVCfGw=
